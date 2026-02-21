@@ -1,0 +1,126 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: #1a202c; /* Dark background */
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #63b3ed;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.status {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: #fc8181;
+  min-height: 1.5em;
+  font-weight: bold;
+}
+
+.player-info {
+  margin-top: 10px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #a0aec0;
+}
+
+.player-info p {
+  margin: 0;
+}
+
+.highlight {
+  color: #63b3ed;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.highlight-opponent {
+  color: #f6ad55;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.btn-primary {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.2s;
+}
+.btn-primary:hover {
+  background: #2b6cb0;
+  transform: scale(1.05);
+}
+
+.controls {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary {
+  padding: 8px 16px;
+  background: #4a5568;
+  color: white;
+  border: 1px solid #718096;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.game-boards {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.board-wrapper {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board-wrapper h3 {
+  margin-bottom: 10px;
+  color: #cbd5e0;
+}
+
+.instruction {
+  color: #68d391;
+  font-weight: bold;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@media (max-width: 800px) {
+  .game-boards {
+    flex-direction: column;
+    gap: 30px;
+  }
+}

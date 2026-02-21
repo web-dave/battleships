@@ -1,0 +1,136 @@
+:host {
+  display: block;
+}
+
+.board-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  border-radius: 8px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.row {
+  display: flex;
+  gap: 2px;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 180, 255, 0.2); /* Clear Water */
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cell:hover {
+  background: rgba(0, 180, 255, 0.4);
+}
+
+.cell.ship {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  box-shadow:
+    inset 0 0 5px rgba(0, 0, 0, 0.8),
+    2px 2px 4px rgba(0, 0, 0, 0.3);
+  border-color: #718096;
+  position: relative;
+}
+
+.cell.ship::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 40%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+/* Hit State: Solid Red with Pulse */
+.cell.shot-hit {
+  background: radial-gradient(circle, #e53e3e 0%, #9b2c2c 100%);
+  box-shadow: 0 0 10px #e53e3e;
+  z-index: 2;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(229, 62, 62, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+  }
+}
+
+/* Miss State: Distinct White Peg */
+.cell.shot-miss {
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+  z-index: 1;
+}
+
+.cell.shot-miss::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 40%;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  /* Removed animation to ensure permanent visibility */
+}
+
+/* Sunk State: Dark with Red Border & Cross */
+.cell.shot-sunk {
+  background: #1a202c;
+  border: 1px solid #e53e3e;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #1a202c 0,
+    #1a202c 5px,
+    #2d3748 5px,
+    #2d3748 10px
+  );
+  position: relative;
+  z-index: 1;
+}
+
+.cell.shot-sunk::after {
+  content: '☠';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  color: #e53e3e;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Disable pointer events on already shot cells */
+.cell[class*='shot-'] {
+  cursor: default;
+  pointer-events: none;
+}
+
+@media (max-width: 400px) {
+  .cell {
+    width: 8vw;
+    height: 8vw;
+    border-radius: 1px;
+  }
+}

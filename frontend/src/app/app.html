@@ -1,0 +1,68 @@
+<div class="app-container">
+  <header>
+    <h1>Battleship</h1>
+    <div class="status">{{ store.status() }}</div>
+    @if(store.playerId()){
+    <div class="player-info">
+      <p>My ID: <span class="highlight">{{ store.playerId() }}</span></p>
+      @if(store.opponentId()){
+      <p>Opponent ID: <span class="highlight-opponent">{{ store.opponentId() }}</span></p>
+      }
+    </div>
+    }
+  </header>
+
+  <main>
+    <!-- Lobby -->
+     @if(store.view() === 'lobby'){
+    <div class="lobby">
+      <button (click)="startGame()" class="btn-primary">Find Match / Start Game</button>
+    </div>
+    }
+
+    <!-- Setup -->
+     @if(store.view() === 'setup'){
+    <div class="setup">
+      <div class="controls">
+        <button (click)="toggleOrientation()" class="btn-secondary">
+          Rotation: {{ orientation }}
+        </button>
+        <p>Placing ship size: {{ shipsToPlace[currentShipIndex] }}</p>
+      </div>
+      <app-board 
+        [size]="10" 
+        [ships]="store.myShips()" 
+        [isInteractive]="true"
+        (cellClick)="onSetupClick($event)">
+      </app-board>
+    </div>
+  } 
+    <!-- Game -->
+     @if(store.view() === 'game' || store.view() === 'gameover'){
+    <div class="game-boards">
+      <div class="board-wrapper">
+        <h3>Opponent Waters</h3>
+        <app-board 
+          [size]="10" 
+          [shots]="store.myShots()"
+          [isInteractive]="store.isMyTurn()"
+          (cellClick)="onGameClick($event)">
+        </app-board>
+        @if(store.isMyTurn()){
+        <p class="instruction">Fire here!</p>
+        }
+      </div>
+      
+      <div class="board-wrapper">
+        <h3>My Fleet</h3>
+        <app-board 
+          [size]="10" 
+          [ships]="store.myShips()"
+          [shots]="store.opponentShots()"
+          [isInteractive]="false">
+        </app-board>
+      </div>
+    </div>
+    }
+  </main>
+</div>

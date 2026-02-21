@@ -1,0 +1,8 @@
+<IfModule mod_headers.c>
+    # Be more specific with headers if possible, but * is usually fine unless credentials are used.
+    # If credentials=true, Origin cannot be *
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, X-Requested-With, X-Lima-Id, Cache-Control, Last-Event-ID"
+    Header always set Access-Control-Expose-Headers "Content-Type, X-Lima-Id"
+</IfModule>

@@ -1,0 +1,11 @@
+<div class="board-container">
+  @for(y of grid (); track y){
+  <div class="row" >
+    @for(x of grid(); track x){
+    <div [class]="cellClassList()[`${x}${y}`]" 
+         (click)="onClick(x, y)">
+    </div>
+    }
+  </div>
+}
+</div>
