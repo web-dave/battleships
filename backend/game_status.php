@@ -59,13 +59,23 @@ try {
         return $ship;
     }, $my_ships_raw);
 
+    // Get opponent display name
+    $opponent_name = '';
+    if ($opponent_id) {
+        $stmt = $pdo->prepare("SELECT player_name FROM players WHERE player_id = ?");
+        $stmt->execute([$opponent_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $opponent_name = $row ? $row['player_name'] : '';
+    }
+
     echo json_encode([
         'game_status' => $game['status'],
         'current_turn' => $game['current_turn'],
         'opponent_shots' => $opponent_shots,
         'my_shots' => $my_shots,
         'my_ships' => $my_ships,
-        'opponent_id' => $opponent_id // Useful to know if opponent joined
+        'opponent_id' => $opponent_id, // Useful to know if opponent joined
+        'opponent_name' => $opponent_name
     ]);
 
 } catch (Exception $e) {

@@ -10,11 +10,11 @@ export class GameService {
 
   constructor(private http: HttpClient) {}
 
-  initGame(playerId?: string): Observable<any> {
-    const url = playerId 
-      ? `${this.apiUrl}/init_game.php?player_id=${playerId}` 
-      : `${this.apiUrl}/init_game.php`;
-    return this.http.get(url);
+  initGame(playerId?: string, playerName?: string): Observable<any> {
+    const body: any = {};
+    if (playerId) body['player_id'] = playerId;
+    if (playerName) body['player_name'] = playerName;
+    return this.http.post(`${this.apiUrl}/init_game.php`, body);
   }
 
   placeShips(gameId: number, playerId: string, ships: any[]): Observable<any> {

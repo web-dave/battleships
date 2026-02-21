@@ -2,11 +2,11 @@
   <header>
     <h1>Battleship</h1>
     <div class="status">{{ store.status() }}</div>
-    @if(store.playerId()){
+    @if(store.playerName() || store.playerId()){
     <div class="player-info">
-      <p>My ID: <span class="highlight">{{ store.playerId() }}</span></p>
+      <p>My Name: <span class="highlight">{{ store.playerName() || store.playerId() }}</span></p>
       @if(store.opponentId()){
-      <p>Opponent ID: <span class="highlight-opponent">{{ store.opponentId() }}</span></p>
+      <p>Opponent: <span class="highlight-opponent">{{ store.opponentName() || store.opponentId() }}</span></p>
       }
     </div>
     }
@@ -16,6 +16,19 @@
     <!-- Lobby -->
      @if(store.view() === 'lobby'){
     <div class="lobby">
+      @if(!store.playerName()){
+      <div class="name-entry">
+        <label for="playerName">Enter your name:</label>
+        <input
+          id="playerName"
+          type="text"
+          [(ngModel)]="nameInput"
+          placeholder="Your name"
+          maxlength="100"
+          (keydown.enter)="startGame()"
+        />
+      </div>
+      }
       <button (click)="startGame()" class="btn-primary">Find Match / Start Game</button>
     </div>
     }
@@ -41,7 +54,7 @@
      @if(store.view() === 'game' || store.view() === 'gameover'){
     <div class="game-boards">
       <div class="board-wrapper">
-        <h3>Opponent Waters</h3>
+        <h3>{{ store.opponentName() || 'Opponent' }}'s Waters</h3>
         <app-board 
           [size]="10" 
           [shots]="store.myShots()"
