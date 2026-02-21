@@ -12,6 +12,7 @@ export interface GameState {
   isMyTurn: boolean;
   status: string;
   gameStatus: 'waiting' | 'active' | 'finished';
+  winner: string | null;
   view: 'lobby' | 'setup' | 'game' | 'gameover';
 }
 
@@ -27,6 +28,7 @@ const initialState: GameState = {
   isMyTurn: false,
   status: 'Welcome to Battleship',
   gameStatus: 'waiting',
+  winner: null,
   view: 'lobby',
 };
 
@@ -52,6 +54,8 @@ export class GameStore {
   readonly playerName = computed(() => this.state().playerName);
   readonly opponentId = computed(() => this.state().opponentId);
   readonly opponentName = computed(() => this.state().opponentName);
+  readonly winner = computed(() => this.state().winner);
+  readonly iWon = computed(() => this.state().winner !== null && this.state().winner === this.state().playerId);
 
   // Actions
   updateState(partial: Partial<GameState>) {
@@ -70,6 +74,11 @@ export class GameStore {
       gameStatus: role === 'player2' ? 'active' : 'waiting',
       view: 'setup',
       status: 'Place your ships',
+      myShips: [],
+      myShots: [],
+      opponentShots: [],
+      winner: null,
+      isMyTurn: false,
     });
   }
 
@@ -109,8 +118,10 @@ export class GameStore {
     }
 
     if (res.game_status === 'finished') {
+      const iWon = res.winner === this.state().playerId;
       updates.view = 'gameover';
-      updates.status = 'Game Over!';
+      updates.winner = res.winner ?? null;
+      updates.status = iWon ? 'You Won! 🎉' : 'You Lost! 💀';
     } else if (this.state().view === 'lobby' && res.game_status !== 'waiting') {
       updates.view = 'game';
     }

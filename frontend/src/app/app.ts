@@ -33,8 +33,10 @@ export class App implements OnDestroy {
       this.store.updateState({ status: 'Please enter your name first!' });
       return;
     }
-    this.store.updateState({ status: 'Connecting...' });
+    this.store.updateState({ view: 'lobby', status: 'Connecting...' });
     const storedPid = localStorage.getItem('player_id');
+    this.pollSubscription?.unsubscribe();
+    this.pollSubscription = undefined;
 
     this.gameService.initGame(storedPid || undefined, name).subscribe({
       next: (res: any) => {

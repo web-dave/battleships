@@ -78,4 +78,18 @@
     </div>
     }
   </main>
+
+  <!-- Game Over Modal -->
+  @if(store.view() === 'gameover'){
+  <div class="modal-overlay">
+    <div class="modal" [class.modal-win]="store.iWon()" [class.modal-lose]="!store.iWon()">
+      <div class="modal-icon">{{ store.iWon() ? '🏆' : '💀' }}</div>
+      <h2 class="modal-title">{{ store.iWon() ? 'Victory!' : 'Defeated!' }}</h2>
+      <p class="modal-message">
+        {{ store.iWon() ? 'You sunk all enemy ships!' : 'All your ships have been sunk!' }}
+      </p>
+      <button class="btn-primary" (click)="startGame()">Play Again</button>
+    </div>
+  </div>
+  }
 </div>
