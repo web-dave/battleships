@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { GameService } from './services/game';
 import { GameStore } from './store/game-store';
 import { BoardComponent } from './components/board/board';
@@ -9,7 +10,7 @@ import { switchMap, tap, filter } from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, BoardComponent],
+  imports: [CommonModule, FormsModule, BoardComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -17,6 +18,7 @@ export class App implements OnDestroy {
   shipsToPlace = [5, 4, 3, 3, 2];
   currentShipIndex = 0;
   orientation: 'horizontal' | 'vertical' = 'horizontal';
+  nameInput = '';
 
   pollSubscription?: Subscription;
 
@@ -26,12 +28,17 @@ export class App implements OnDestroy {
   ) {}
 
   startGame() {
+    const name = this.store.playerName() || this.nameInput.trim();
+    if (!name) {
+      this.store.updateState({ status: 'Please enter your name first!' });
+      return;
+    }
     this.store.updateState({ status: 'Connecting...' });
     const storedPid = localStorage.getItem('player_id');
 
-    this.gameService.initGame(storedPid || undefined).subscribe({
+    this.gameService.initGame(storedPid || undefined, name).subscribe({
       next: (res: any) => {
-        this.store.setGameInit(res.game_id, res.player_id, res.role);
+        this.store.setGameInit(res.game_id, res.player_id, res.role, res.player_name || name);
         // Reset local setup state
         this.currentShipIndex = 0;
         this.store.updateState({ myShips: [] });

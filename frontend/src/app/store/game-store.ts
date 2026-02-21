@@ -3,7 +3,9 @@ import { Injectable, signal, computed, effect } from '@angular/core';
 export interface GameState {
   gameId: number | null;
   playerId: string | null;
+  playerName: string;
   opponentId: string | null;
+  opponentName: string;
   myShips: any[];
   myShots: any[];
   opponentShots: any[];
@@ -16,7 +18,9 @@ export interface GameState {
 const initialState: GameState = {
   gameId: null,
   playerId: localStorage.getItem('player_id'),
+  playerName: localStorage.getItem('player_name') || '',
   opponentId: null,
+  opponentName: '',
   myShips: [],
   myShots: [],
   opponentShots: [],
@@ -45,18 +49,24 @@ export class GameStore {
   readonly opponentShots = computed(() => this.state().opponentShots);
   readonly isMyTurn = computed(() => this.state().isMyTurn);
   readonly playerId = computed(() => this.state().playerId);
+  readonly playerName = computed(() => this.state().playerName);
   readonly opponentId = computed(() => this.state().opponentId);
+  readonly opponentName = computed(() => this.state().opponentName);
 
   // Actions
   updateState(partial: Partial<GameState>) {
     this.state.update((current) => ({ ...current, ...partial }));
   }
 
-  setGameInit(gameId: number, playerId: string, role: string) {
+  setGameInit(gameId: number, playerId: string, role: string, playerName: string) {
     localStorage.setItem('player_id', playerId);
+    if (playerName) {
+      localStorage.setItem('player_name', playerName);
+    }
     this.updateState({
       gameId,
       playerId,
+      playerName: playerName || this.state().playerName,
       gameStatus: role === 'player2' ? 'active' : 'waiting',
       view: 'setup',
       status: 'Place your ships',
@@ -80,6 +90,7 @@ export class GameStore {
       myShots: res.my_shots || [],
       opponentShots: res.opponent_shots || [],
       opponentId: res.opponent_id,
+      opponentName: res.opponent_name || this.state().opponentName,
       status: baseStatus,
       gameStatus: res.game_status,
     };
