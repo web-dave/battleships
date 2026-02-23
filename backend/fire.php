@@ -35,6 +35,14 @@ try {
 
     $opponent_id = ($game['player1_id'] === $player_id) ? $game['player2_id'] : $game['player1_id'];
 
+    // Check that opponent has placed their ships before allowing shots
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM ships WHERE game_id = ? AND player_id = ?");
+    $stmt->execute([$game_id, $opponent_id]);
+    if ((int)$stmt->fetchColumn() === 0) {
+        echo json_encode(['status' => 'waiting_for_ships']);
+        exit;
+    }
+
     // Check hit
     $hit = false;
     $sunk = false;

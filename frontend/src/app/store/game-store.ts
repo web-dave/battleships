@@ -10,6 +10,7 @@ export interface GameState {
   myShots: any[];
   opponentShots: any[];
   isMyTurn: boolean;
+  opponentShipsPlaced: boolean;
   status: string;
   gameStatus: 'waiting' | 'active' | 'finished';
   winner: string | null;
@@ -26,6 +27,7 @@ const initialState: GameState = {
   myShots: [],
   opponentShots: [],
   isMyTurn: false,
+  opponentShipsPlaced: false,
   status: 'Welcome to Battleship',
   gameStatus: 'waiting',
   winner: null,
@@ -56,7 +58,11 @@ export class GameStore {
   readonly opponentName = computed(() => this.state().opponentName);
   readonly winner = computed(() => this.state().winner);
   readonly iWon = computed(() => this.state().winner !== null && this.state().winner === this.state().playerId);
-  readonly isWaitingForOpponent = computed(() => this.state().view === 'game' && this.state().gameStatus === 'waiting');
+  readonly isWaitingForOpponent = computed(
+    () =>
+      this.state().view === 'game' &&
+      (this.state().gameStatus === 'waiting' || !this.state().opponentShipsPlaced),
+  );
 
   // Actions
   updateState(partial: Partial<GameState>) {
@@ -78,6 +84,7 @@ export class GameStore {
       myShips: [],
       myShots: [],
       opponentShots: [],
+      opponentShipsPlaced: false,
       winner: null,
       isMyTurn: false,
     });
@@ -101,6 +108,7 @@ export class GameStore {
       opponentShots: res.opponent_shots || [],
       opponentId: res.opponent_id,
       opponentName: res.opponent_name || this.state().opponentName,
+      opponentShipsPlaced: !!res.opponent_ships_placed,
       status: baseStatus,
       gameStatus: res.game_status,
     };

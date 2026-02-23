@@ -115,9 +115,14 @@ describe('GameStore', () => {
       expect(store.isWaitingForOpponent()).toBe(true);
     });
 
-    it('isWaitingForOpponent() should be false when in game view and gameStatus is active', () => {
-      store.updateState({ view: 'game', gameStatus: 'active' });
+    it('isWaitingForOpponent() should be false when in game view, gameStatus is active and opponent has placed ships', () => {
+      store.updateState({ view: 'game', gameStatus: 'active', opponentShipsPlaced: true });
       expect(store.isWaitingForOpponent()).toBe(false);
+    });
+
+    it('isWaitingForOpponent() should be true when in game view, gameStatus is active but opponent has not placed ships', () => {
+      store.updateState({ view: 'game', gameStatus: 'active', opponentShipsPlaced: false });
+      expect(store.isWaitingForOpponent()).toBe(true);
     });
 
     it('isWaitingForOpponent() should be false when in gameover view', () => {
@@ -161,13 +166,14 @@ describe('GameStore', () => {
       expect(store.state().gameStatus).toBe('waiting');
     });
 
-    it('should reset myShips, myShots, opponentShots and winner', () => {
-      store.updateState({ myShips: [{ x: 0, y: 0, size: 5 }], winner: 'pid' });
+    it('should reset myShips, myShots, opponentShots, opponentShipsPlaced and winner', () => {
+      store.updateState({ myShips: [{ x: 0, y: 0, size: 5 }], winner: 'pid', opponentShipsPlaced: true });
       store.setGameInit(1, 'pid', 'player1', 'Alice');
       expect(store.state().myShips).toEqual([]);
       expect(store.state().myShots).toEqual([]);
       expect(store.state().opponentShots).toEqual([]);
       expect(store.state().winner).toBeNull();
+      expect(store.state().opponentShipsPlaced).toBe(false);
     });
 
     it('should persist player_name to localStorage when provided', () => {
@@ -229,6 +235,17 @@ describe('GameStore', () => {
       store.updateGameStatus({ current_turn: 'p2', game_status: 'active', my_shots: [], opponent_shots: [], opponent_id: 'p2', opponent_name: 'Bob' });
       expect(store.opponentId()).toBe('p2');
       expect(store.opponentName()).toBe('Bob');
+    });
+
+    it('should set opponentShipsPlaced to true when opponent_ships_placed is true in response', () => {
+      store.updateGameStatus({ current_turn: 'p2', game_status: 'active', my_shots: [], opponent_shots: [], opponent_ships_placed: true });
+      expect(store.state().opponentShipsPlaced).toBe(true);
+    });
+
+    it('should set opponentShipsPlaced to false when opponent_ships_placed is false in response', () => {
+      store.updateState({ opponentShipsPlaced: true });
+      store.updateGameStatus({ current_turn: 'p2', game_status: 'active', my_shots: [], opponent_shots: [], opponent_ships_placed: false });
+      expect(store.state().opponentShipsPlaced).toBe(false);
     });
 
     it('should set view to "gameover" and winner when game_status is "finished"', () => {
