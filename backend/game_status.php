@@ -68,6 +68,14 @@ try {
         $opponent_name = $row ? $row['player_name'] : '';
     }
 
+    // Check if opponent has placed their ships
+    $opponent_ships_placed = false;
+    if ($opponent_id) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM ships WHERE game_id = ? AND player_id = ?");
+        $stmt->execute([$game_id, $opponent_id]);
+        $opponent_ships_placed = (int)$stmt->fetchColumn() > 0;
+    }
+
     echo json_encode([
         'game_status' => $game['status'],
         'current_turn' => $game['current_turn'],
@@ -76,7 +84,8 @@ try {
         'my_shots' => $my_shots,
         'my_ships' => $my_ships,
         'opponent_id' => $opponent_id, // Useful to know if opponent joined
-        'opponent_name' => $opponent_name
+        'opponent_name' => $opponent_name,
+        'opponent_ships_placed' => $opponent_ships_placed
     ]);
 
 } catch (Exception $e) {

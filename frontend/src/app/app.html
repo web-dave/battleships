@@ -66,10 +66,10 @@
         <app-board 
           [size]="10" 
           [shots]="store.myShots()"
-          [isInteractive]="store.isMyTurn()"
+          [isInteractive]="store.isMyTurn() && !store.isWaitingForOpponent()"
           (cellClick)="onGameClick($event)">
         </app-board>
-        @if(store.isMyTurn()){
+        @if(store.isMyTurn() && !store.isWaitingForOpponent()){
         <p class="instruction">Fire here!</p>
         }
       </div>
