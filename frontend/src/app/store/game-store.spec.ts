@@ -104,6 +104,26 @@ describe('GameStore', () => {
       store.updateState({ playerId: 'p1', winner: 'p2' });
       expect(store.iWon()).toBe(false);
     });
+
+    it('isWaitingForOpponent() should be false in lobby view', () => {
+      store.updateState({ view: 'lobby', gameStatus: 'waiting' });
+      expect(store.isWaitingForOpponent()).toBe(false);
+    });
+
+    it('isWaitingForOpponent() should be true when in game view and gameStatus is waiting', () => {
+      store.updateState({ view: 'game', gameStatus: 'waiting' });
+      expect(store.isWaitingForOpponent()).toBe(true);
+    });
+
+    it('isWaitingForOpponent() should be false when in game view and gameStatus is active', () => {
+      store.updateState({ view: 'game', gameStatus: 'active' });
+      expect(store.isWaitingForOpponent()).toBe(false);
+    });
+
+    it('isWaitingForOpponent() should be false when in gameover view', () => {
+      store.updateState({ view: 'gameover', gameStatus: 'waiting' });
+      expect(store.isWaitingForOpponent()).toBe(false);
+    });
   });
 
   describe('updateState', () => {

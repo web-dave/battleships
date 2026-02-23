@@ -56,6 +56,7 @@ export class GameStore {
   readonly opponentName = computed(() => this.state().opponentName);
   readonly winner = computed(() => this.state().winner);
   readonly iWon = computed(() => this.state().winner !== null && this.state().winner === this.state().playerId);
+  readonly isWaitingForOpponent = computed(() => this.state().view === 'game' && this.state().gameStatus === 'waiting');
 
   // Actions
   updateState(partial: Partial<GameState>) {
