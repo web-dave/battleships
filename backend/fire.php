@@ -84,16 +84,33 @@ try {
     $stmt = $pdo->prepare("INSERT INTO shots (game_id, player_id, x, y, result, ship_id) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([$game_id, $player_id, $x, $y, $result, $hit_ship_id]);
 
-    // Update turn
-    $stmt = $pdo->prepare("UPDATE games SET current_turn = ? WHERE id = ?");
-    $stmt->execute([$opponent_id, $game_id]);
+    // Check if all opponent ships are sunk (game over)
+    $game_over = false;
+    if ($sunk) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM ships WHERE game_id = ? AND player_id = ? AND sunk = 0");
+        $stmt->execute([$game_id, $opponent_id]);
+        $remaining = (int)$stmt->fetchColumn();
+        if ($remaining === 0) {
+            $game_over = true;
+            $stmt = $pdo->prepare("UPDATE games SET status = 'finished', winner = ?, current_turn = NULL WHERE id = ?");
+            $stmt->execute([$player_id, $game_id]);
+        }
+    }
+
+    if (!$game_over) {
+        // Update turn
+        $stmt = $pdo->prepare("UPDATE games SET current_turn = ? WHERE id = ?");
+        $stmt->execute([$opponent_id, $game_id]);
+    }
 
     echo json_encode([
         'status' => 'ok',
         'result' => $result,
         'ship_id' => $hit_ship_id,
         'x' => $x,
-        'y' => $y
+        'y' => $y,
+        'game_over' => $game_over,
+        'winner' => $game_over ? $player_id : null
     ]);
 
 } catch (Exception $e) {

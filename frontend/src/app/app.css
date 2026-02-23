@@ -158,3 +158,70 @@ h1 {
     gap: 30px;
   }
 }
+
+/* Game Over Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: #2d3748;
+  border-radius: 12px;
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+  border: 2px solid transparent;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-win {
+  border-color: #68d391;
+}
+
+.modal-lose {
+  border-color: #fc8181;
+}
+
+.modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+}
+
+.modal-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 0 10px;
+}
+
+.modal-win .modal-title {
+  color: #68d391;
+}
+
+.modal-lose .modal-title {
+  color: #fc8181;
+}
+
+.modal-message {
+  color: #a0aec0;
+  margin: 0 0 24px;
+  font-size: 1rem;
+}

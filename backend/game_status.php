@@ -71,6 +71,7 @@ try {
     echo json_encode([
         'game_status' => $game['status'],
         'current_turn' => $game['current_turn'],
+        'winner' => $game['winner'],
         'opponent_shots' => $opponent_shots,
         'my_shots' => $my_shots,
         'my_ships' => $my_ships,
