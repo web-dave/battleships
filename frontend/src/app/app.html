@@ -52,6 +52,14 @@
   } 
     <!-- Game -->
      @if(store.view() === 'game' || store.view() === 'gameover'){
+    @if(store.isWaitingForOpponent()){
+    <div class="waiting-overlay">
+      <div class="waiting-message">
+        <span class="waiting-icon">⏳</span>
+        <p>Waiting for opponent...</p>
+      </div>
+    </div>
+    }
     <div class="game-boards">
       <div class="board-wrapper">
         <h3>{{ store.opponentName() || 'Opponent' }}'s Waters</h3>

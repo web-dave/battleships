@@ -225,3 +225,33 @@ h1 {
   margin: 0 0 24px;
   font-size: 1rem;
 }
+
+.waiting-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.waiting-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: #2d3748;
+  border: 2px solid #4a5568;
+  border-radius: 12px;
+  padding: 32px 48px;
+  color: #a0aec0;
+  font-size: 1.2rem;
+}
+
+.waiting-icon {
+  font-size: 2.5rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
