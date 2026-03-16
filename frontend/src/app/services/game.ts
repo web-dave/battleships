@@ -37,6 +37,29 @@ export class GameService {
   getStatus(gameId: number, playerId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/game_status.php?game_id=${gameId}&player_id=${playerId}`);
   }
+
+  subscribeToEvents(gameId: number, playerId: string): Observable<any> {
+    return new Observable((observer) => {
+      const url = `${this.apiUrl}/events.php?game_id=${gameId}&player_id=${playerId}`;
+      const eventSource = new EventSource(url);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          observer.next(data);
+        } catch {
+          console.warn('[SSE] Failed to parse message:', event.data);
+        }
+      };
+
+      eventSource.onerror = () => {
+        // EventSource reconnects automatically; don't complete the observable
+        console.warn('[SSE] Connection error, EventSource will reconnect automatically.');
+      };
+
+      return () => eventSource.close();
+    });
+  }
 }
 
 export const classMap = {
