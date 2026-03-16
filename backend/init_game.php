@@ -31,6 +31,12 @@ try {
     }
 
     if ($action === 'start') {
+        // Remove stale waiting games (no opponent joined within 30 minutes)
+        $pdo->exec("DELETE FROM games WHERE status = 'waiting' AND created_at < NOW() - INTERVAL 30 MINUTE");
+
+        // Remove abandoned active games (no activity for 2 hours)
+        $pdo->exec("DELETE FROM games WHERE status = 'active' AND updated_at < NOW() - INTERVAL 2 HOUR");
+
         // Check for open games
         $stmt = $pdo->prepare("SELECT id FROM games WHERE status = 'waiting' AND player1_id != ? LIMIT 1");
         $stmt->execute([$player_id]);

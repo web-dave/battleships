@@ -41,6 +41,10 @@ try {
         ]);
     }
 
+    // Touch the game row so updated_at reflects this activity
+    $stmt = $pdo->prepare("UPDATE games SET updated_at = NOW() WHERE id = ?");
+    $stmt->execute([$game_id]);
+
     $pdo->commit();
     echo json_encode(['success' => true]);
 

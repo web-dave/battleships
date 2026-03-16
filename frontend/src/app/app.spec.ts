@@ -252,6 +252,40 @@ describe('App', () => {
     });
   });
 
+  describe('startPolling()', () => {
+    it('should reset to lobby and clear gameId when getStatus returns an error', async () => {
+      store.updateState({ gameId: 1, playerId: 'pid' });
+      mockGameService.getStatus.mockReturnValue(throwError(() => new Error('Not Found')));
+      vi.useFakeTimers();
+      (component as any).startPolling();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.view()).toBe('lobby');
+      expect(store.state().gameId).toBeNull();
+      expect(store.status()).toContain('expired');
+      vi.useRealTimers();
+    });
+
+    it('should update game status on successful poll', async () => {
+      store.updateState({ gameId: 1, playerId: 'pid' });
+      mockGameService.getStatus.mockReturnValue(of({ game_status: 'active', current_turn: 'other', my_shots: [], opponent_shots: [] }));
+      vi.useFakeTimers();
+      (component as any).startPolling();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(store.state().gameStatus).toBe('active');
+      vi.useRealTimers();
+    });
+
+    it('should unsubscribe and clear pollSubscription when getStatus errors', async () => {
+      store.updateState({ gameId: 1, playerId: 'pid' });
+      mockGameService.getStatus.mockReturnValue(throwError(() => new Error('Not Found')));
+      vi.useFakeTimers();
+      (component as any).startPolling();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect((component as any).pollSubscription).toBeUndefined();
+      vi.useRealTimers();
+    });
+  });
+
   describe('ngOnDestroy()', () => {
     it('should unsubscribe pollSubscription on destroy', () => {
       (component as any).pollSubscription = { unsubscribe: vi.fn() };
