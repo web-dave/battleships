@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { GameService } from './services/game';
 import { GameStore } from './store/game-store';
 import { BoardComponent } from './components/board/board';
-import { Subscription } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
+import { switchMap, tap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,7 @@ export class App implements OnDestroy {
   orientation: 'horizontal' | 'vertical' = 'horizontal';
   nameInput = '';
 
-  private sseSubscription?: Subscription;
+  pollSubscription?: Subscription;
 
   constructor(
     private gameService: GameService,
@@ -34,8 +35,8 @@ export class App implements OnDestroy {
     }
     this.store.updateState({ view: 'lobby', status: 'Connecting...' });
     const storedPid = localStorage.getItem('player_id');
-    this.sseSubscription?.unsubscribe();
-    this.sseSubscription = undefined;
+    this.pollSubscription?.unsubscribe();
+    this.pollSubscription = undefined;
 
     this.gameService.initGame(storedPid || undefined, name).subscribe({
       next: (res: any) => {
@@ -109,7 +110,7 @@ export class App implements OnDestroy {
 
     this.gameService.placeShips(s.gameId!, s.playerId!, s.myShips).subscribe(() => {
       this.store.setShipsPlaced(s.myShips);
-      this.startSSE();
+      this.startPolling();
     });
   }
 
@@ -125,23 +126,26 @@ export class App implements OnDestroy {
     });
   }
 
-  startSSE() {
-    if (this.sseSubscription) return;
+  startPolling() {
+    if (this.pollSubscription) return;
 
-    const s = this.store.state();
-    this.sseSubscription = this.gameService.subscribeToEvents(s.gameId!, s.playerId!).subscribe({
-      next: (res: any) => {
-        if (res.error) return;
+    this.pollSubscription = interval(1000)
+      .pipe(
+        filter(() => !!this.store.state().gameId),
+        switchMap(() => {
+          const s = this.store.state();
+          return this.gameService.getStatus(s.gameId!, s.playerId!);
+        }),
+      )
+      .subscribe((res: any) => {
         this.store.updateGameStatus(res);
         if (res.game_status === 'finished') {
-          this.sseSubscription?.unsubscribe();
-          this.sseSubscription = undefined;
+          this.pollSubscription?.unsubscribe();
         }
-      },
-    });
+      });
   }
 
   ngOnDestroy() {
-    this.sseSubscription?.unsubscribe();
+    this.pollSubscription?.unsubscribe();
   }
 }

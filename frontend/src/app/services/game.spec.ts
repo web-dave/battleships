@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -119,71 +119,6 @@ describe('GameService', () => {
       const req = httpMock.expectOne(`${apiUrl}/game_status.php?game_id=5&player_id=abc`);
       req.flush(mockResponse);
       expect(result).toEqual(mockResponse);
-    });
-  });
-
-  describe('subscribeToEvents', () => {
-    let mockEventSource: { onmessage: ((e: any) => void) | null; onerror: (() => void) | null; close: ReturnType<typeof vi.fn> };
-
-    beforeEach(() => {
-      mockEventSource = { onmessage: null, onerror: null, close: vi.fn() };
-      // Use a plain function constructor so `new EventSource(url)` returns mockEventSource
-      vi.stubGlobal('EventSource', function () { return mockEventSource; });
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
-
-    it('should create an EventSource with the correct URL', () => {
-      const spy = vi.spyOn(globalThis, 'EventSource' as any);
-      service.subscribeToEvents(1, 'pid').subscribe();
-      expect(spy).toHaveBeenCalledWith(`${apiUrl}/events.php?game_id=1&player_id=pid`);
-    });
-
-    it('should emit parsed JSON data from SSE messages', () => {
-      const results: any[] = [];
-      service.subscribeToEvents(1, 'pid').subscribe((data) => results.push(data));
-
-      mockEventSource.onmessage!({ data: JSON.stringify({ game_status: 'active' }) });
-
-      expect(results).toEqual([{ game_status: 'active' }]);
-    });
-
-    it('should emit multiple messages in order', () => {
-      const results: any[] = [];
-      service.subscribeToEvents(1, 'pid').subscribe((data) => results.push(data));
-
-      mockEventSource.onmessage!({ data: JSON.stringify({ game_status: 'active', current_turn: 'p1' }) });
-      mockEventSource.onmessage!({ data: JSON.stringify({ game_status: 'finished', winner: 'p1' }) });
-
-      expect(results).toHaveLength(2);
-      expect(results[0].game_status).toBe('active');
-      expect(results[1].game_status).toBe('finished');
-    });
-
-    it('should not emit when message data is invalid JSON', () => {
-      const results: any[] = [];
-      service.subscribeToEvents(1, 'pid').subscribe((data) => results.push(data));
-
-      mockEventSource.onmessage!({ data: 'not-valid-json' });
-
-      expect(results).toHaveLength(0);
-    });
-
-    it('should not complete the observable on SSE error (allows reconnect)', () => {
-      let completed = false;
-      service.subscribeToEvents(1, 'pid').subscribe({ complete: () => { completed = true; } });
-
-      mockEventSource.onerror!();
-
-      expect(completed).toBe(false);
-    });
-
-    it('should close EventSource when unsubscribed', () => {
-      const sub = service.subscribeToEvents(1, 'pid').subscribe();
-      sub.unsubscribe();
-      expect(mockEventSource.close).toHaveBeenCalled();
     });
   });
 });

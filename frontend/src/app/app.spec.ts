@@ -4,14 +4,13 @@ import { ComponentFixture } from '@angular/core/testing';
 import { App } from './app';
 import { GameService } from './services/game';
 import { GameStore } from './store/game-store';
-import { of, throwError, NEVER, Subject } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 const mockGameService = {
   initGame: vi.fn(),
   placeShips: vi.fn(),
   fire: vi.fn(),
   getStatus: vi.fn(),
-  subscribeToEvents: vi.fn(),
 };
 
 describe('App', () => {
@@ -32,7 +31,6 @@ describe('App', () => {
     vi.stubGlobal('localStorage', localStorageMock);
 
     vi.resetAllMocks();
-    mockGameService.subscribeToEvents.mockReturnValue(NEVER);
 
     await TestBed.configureTestingModule({
       imports: [App],
@@ -224,13 +222,6 @@ describe('App', () => {
       expect(mockGameService.placeShips).toHaveBeenCalledWith(1, 'pid', []);
       expect(store.view()).toBe('game');
     });
-
-    it('should start SSE after placeShips succeeds', () => {
-      store.updateState({ gameId: 1, playerId: 'pid', myShips: [] });
-      mockGameService.placeShips.mockReturnValue(of({}));
-      (component as any).finishSetup();
-      expect(mockGameService.subscribeToEvents).toHaveBeenCalledWith(1, 'pid');
-    });
   });
 
   describe('onGameClick()', () => {
@@ -261,64 +252,15 @@ describe('App', () => {
     });
   });
 
-  describe('startSSE()', () => {
-    it('should call subscribeToEvents with gameId and playerId', () => {
-      store.updateState({ gameId: 5, playerId: 'player-123' });
-      (component as any).startSSE();
-      expect(mockGameService.subscribeToEvents).toHaveBeenCalledWith(5, 'player-123');
-    });
-
-    it('should not subscribe again when SSE is already active', () => {
-      store.updateState({ gameId: 1, playerId: 'pid' });
-      (component as any).startSSE();
-      (component as any).startSSE();
-      expect(mockGameService.subscribeToEvents).toHaveBeenCalledTimes(1);
-    });
-
-    it('should update game status when SSE emits state', () => {
-      const subject = new Subject<any>();
-      mockGameService.subscribeToEvents.mockReturnValue(subject.asObservable());
-      store.updateState({ gameId: 1, playerId: 'p1' });
-      (component as any).startSSE();
-
-      subject.next({ game_status: 'active', current_turn: 'p1', my_shots: [], opponent_shots: [] });
-
-      expect(store.isMyTurn()).toBe(true);
-    });
-
-    it('should ignore SSE messages with an error field', () => {
-      const subject = new Subject<any>();
-      mockGameService.subscribeToEvents.mockReturnValue(subject.asObservable());
-      store.updateState({ gameId: 1, playerId: 'p1', view: 'game' });
-      (component as any).startSSE();
-
-      const spy = vi.spyOn(store, 'updateGameStatus');
-      subject.next({ error: 'Game not found' });
-
-      expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should unsubscribe SSE when game finishes', () => {
-      const subject = new Subject<any>();
-      mockGameService.subscribeToEvents.mockReturnValue(subject.asObservable());
-      store.updateState({ gameId: 1, playerId: 'p1' });
-      (component as any).startSSE();
-
-      subject.next({ game_status: 'finished', current_turn: 'p1', my_shots: [], opponent_shots: [], winner: 'p1' });
-
-      expect((component as any).sseSubscription).toBeUndefined();
-    });
-  });
-
   describe('ngOnDestroy()', () => {
-    it('should unsubscribe sseSubscription on destroy', () => {
-      (component as any).sseSubscription = { unsubscribe: vi.fn() };
+    it('should unsubscribe pollSubscription on destroy', () => {
+      (component as any).pollSubscription = { unsubscribe: vi.fn() };
       component.ngOnDestroy();
-      expect((component as any).sseSubscription.unsubscribe).toHaveBeenCalled();
+      expect((component as any).pollSubscription.unsubscribe).toHaveBeenCalled();
     });
 
-    it('should not throw when sseSubscription is undefined', () => {
-      (component as any).sseSubscription = undefined;
+    it('should not throw when pollSubscription is undefined', () => {
+      (component as any).pollSubscription = undefined;
       expect(() => component.ngOnDestroy()).not.toThrow();
     });
   });
