@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { GameService } from './services/game';
 import { GameStore } from './store/game-store';
 import { BoardComponent } from './components/board/board';
-import { interval, Subscription } from 'rxjs';
-import { switchMap, tap, filter } from 'rxjs/operators';
+import { interval, Subscription, EMPTY } from 'rxjs';
+import { switchMap, tap, filter, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -134,7 +134,18 @@ export class App implements OnDestroy {
         filter(() => !!this.store.state().gameId),
         switchMap(() => {
           const s = this.store.state();
-          return this.gameService.getStatus(s.gameId!, s.playerId!);
+          return this.gameService.getStatus(s.gameId!, s.playerId!).pipe(
+            catchError(() => {
+              this.pollSubscription?.unsubscribe();
+              this.pollSubscription = undefined;
+              this.store.updateState({
+                view: 'lobby',
+                gameId: null,
+                status: 'Your game has expired due to inactivity.',
+              });
+              return EMPTY;
+            }),
+          );
         }),
       )
       .subscribe((res: any) => {
